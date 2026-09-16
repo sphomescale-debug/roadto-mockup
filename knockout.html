@@ -72,7 +72,7 @@ td.team{text-align:left;font-weight:700}
 
 <div class="card">
   <h2>1) รายชื่อและ Seed 16 ทีม</h2>
-  <div class="small">แก้ชื่อทีมได้เอง รายชื่อชุดนี้ใช้ต่อเนื่องทุก Circuit</div>
+  <div class="small">รายชื่อชุดนี้ใช้ต่อเนื่องทุก Circuit • สามารถดึง 16 ทีมที่ผ่านจาก Road To ได้อัตโนมัติ หรือแก้ชื่อทีมเอง</div><div class="toolbar" style="margin-top:8px"><button class="primary" onclick="loadRoadTo()">↙ ใช้ 16 ทีมจาก Road To</button><span id="roadStatus" class="small"></span></div>
   <div id="teamInputs" class="teams" style="margin-top:10px"></div>
 </div>
 
@@ -117,7 +117,7 @@ td.team{text-align:left;font-weight:700}
       </table>
     </div>
   </div>
-</div>
+</div><div class="card"><h2>ส่ง Top 8 สู่ Grand Final Elite</h2><p class="small">ใช้ 8 อันดับแรกจากตารางคะแนนสะสม Circuit 1–9</p><button class="primary" onclick="sendTop8()">ใช้ Top 8 ใน Grand Final Elite →</button></div>
 </main>
 
 <script>
@@ -139,6 +139,7 @@ const firstPairs=[[0,15],[7,8],[4,11],[3,12],[2,13],[5,10],[6,9],[1,14]];
 function seedFirst(c){
   firstPairs.forEach((p,i)=>{c.r16[i].a=teams[p[0]];c.r16[i].b=teams[p[1]]});
 }
+function loadRoadTo(){try{let q=JSON.parse(localStorage.getItem("ttlRoadToQualified")||"[]");if(q.length!==16){document.getElementById("roadStatus").innerText="ยังไม่มีข้อมูล 16 ทีมจาก Road To";return}teams=q.map(x=>x.name);circuits=Array.from({length:9},()=>blankCircuit());circuits.forEach(seedFirst);renderTeams();renderAll();document.getElementById("roadStatus").innerText="โหลด 16 ทีมจาก Road To แล้ว"}catch(e){document.getElementById("roadStatus").innerText="ไม่สามารถอ่านข้อมูล Road To ได้"}}
 function renderTeams(){
   let x="";
   teams.forEach((t,i)=>x+=`<label><span class="small">Seed ${i+1}</span><input class="teamname" value="${t}" onchange="renameTeam(${i},this.value)"></label>`);
@@ -340,6 +341,7 @@ function renderAll(){
   }).join("");
 }
 
+function sendTop8(){let rows=cumulative().slice(0,8);localStorage.setItem("ttlKnockoutTop8",JSON.stringify(rows.map((x,i)=>({name:x.team,rank:i+1,pts:x.Pts}))));location.href="grandfinal.html"}
 function randomSet(winA){
   // 25% chance of a 14-14 extended set.
   const deuce=Math.random()<0.25;
