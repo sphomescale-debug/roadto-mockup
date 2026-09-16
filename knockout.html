@@ -52,14 +52,14 @@ td.team{text-align:left;font-weight:700}
 @media(max-width:1100px){.bracket,.grid2{grid-template-columns:1fr}.teams,.seedgrid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.teams,.seedgrid{grid-template-columns:1fr}.setrow{grid-template-columns:42px 1fr 48px 12px 48px 1fr}.setrow input{width:48px}}
 </style>
-</head>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><style>@media print{header{background:#fff!important;color:#000!important}header p{color:#333!important}.no-print,button,a.btn{display:none!important}body{background:#fff}.card{box-shadow:none;break-inside:avoid}main{max-width:none;padding:0}}</style></head>
 <body>
 <header>
 <h1>Knockout Circuit 1–9 — Score Entry Mockup</h1>
 <p>กรอกแต้มจริงรายเซต • คำนวณผลการแข่งขัน • คะแนน Circuit • สถิติสะสม SW/SL/SD/PF/PA/PD</p>
 </header>
 
-<main><div class="card"><a class="ghost" style="display:inline-block;text-decoration:none;padding:9px 13px;border-radius:9px;font-weight:700" href="index.html">← เลือกระบบการแข่งขัน</a></div>
+<main><div class="card toolbar no-print"><b>ส่งออกข้อมูล:</b><button onclick="exportExcel()">📥 ดาวน์โหลด Excel</button><button onclick="window.print()">🖨️ พิมพ์ / บันทึก PDF</button></div><div class="card"><a class="ghost" style="display:inline-block;text-decoration:none;padding:9px 13px;border-radius:9px;font-weight:700" href="index.html">← เลือกระบบการแข่งขัน</a></div>
 <div class="card">
   <div class="toolbar">
     <b>เลือก Circuit:</b>
