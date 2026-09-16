@@ -59,7 +59,7 @@ td.team{text-align:left;font-weight:700}
 <p>กรอกแต้มจริงรายเซต • คำนวณผลการแข่งขัน • คะแนน Circuit • สถิติสะสม SW/SL/SD/PF/PA/PD</p>
 </header>
 
-<main><div class="card toolbar no-print"><b>ส่งออกข้อมูล:</b><button onclick="exportExcel()">📥 ดาวน์โหลด Excel</button><button onclick="window.print()">🖨️ พิมพ์ / บันทึก PDF</button></div><div class="card"><a class="ghost" style="display:inline-block;text-decoration:none;padding:9px 13px;border-radius:9px;font-weight:700" href="index.html">← เลือกระบบการแข่งขัน</a></div>
+<main><div class="card toolbar no-print"><b>Excel:</b><button onclick="downloadTemplate()">📄 ดาวน์โหลด Template</button><button onclick="document.getElementById('excelImport').click()">📤 นำเข้า Excel</button><input id="excelImport" type="file" accept=".xlsx,.xls" style="display:none" onchange="importExcel(this.files[0]);this.value=''"><span id="importStatus" class="small"></span><b>ส่งออก:</b><button onclick="exportExcel()">📥 ดาวน์โหลด Excel</button><button onclick="window.print()">🖨️ พิมพ์ / บันทึก PDF</button></div><div class="card"><a class="ghost" style="display:inline-block;text-decoration:none;padding:9px 13px;border-radius:9px;font-weight:700" href="index.html">← เลือกระบบการแข่งขัน</a></div>
 <div class="card">
   <div class="toolbar">
     <b>เลือก Circuit:</b>
