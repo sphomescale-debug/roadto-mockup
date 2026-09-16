@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knockout Circuit 1–9 Score Entry Mockup</title>
+<style>
+:root{
+  --bg:#f4f7fb; --card:#ffffff; --ink:#14233b; --muted:#6b7890;
+  --line:#dfe6ef; --navy:#0b2d5b; --navy2:#17467c; --gold:#cda434;
+  --green:#137a56; --red:#b74040; --soft:#eef4fb; --top:#f8f3dc;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:22px 18px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:white}
+header h1{margin:0 0 6px;font-size:25px}
+header p{margin:0;color:#dce8f7}
+main{max-width:1540px;margin:auto;padding:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 6px 20px rgba(13,45,90,.06)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button{border:0;border-radius:9px;padding:9px 13px;font-weight:700;cursor:pointer}
+.primary{background:var(--navy);color:white}.ghost{background:var(--soft);color:var(--navy)}.danger{background:#fff0f0;color:var(--red)}
+.circuit-tab{background:#eef3fa;color:var(--navy)}.circuit-tab.active{background:var(--navy);color:#fff}
+input,select{border:1px solid #ccd7e5;border-radius:8px;padding:7px;background:white}
+input.teamname{width:100%}
+.small{font-size:12px;color:var(--muted)}
+.note{background:#eef5ff;border-left:4px solid var(--navy);padding:10px 12px;border-radius:8px}
+.teams{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.seedgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.seedbox{background:#f8fafd;border:1px solid var(--line);border-radius:12px;padding:10px}
+.seedbox h3{margin:0 0 7px;color:var(--navy)}
+.bracket{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
+.round h3{margin:0 0 8px}
+.match{border:1px solid var(--line);background:#fbfcfe;border-radius:12px;padding:10px;margin:10px 0}
+.match-title{font-weight:800;margin-bottom:7px;text-align:center}
+.setrow{display:grid;grid-template-columns:52px 1fr 60px 16px 60px 1fr;gap:5px;align-items:center;margin:5px 0}
+.setrow .ta{text-align:right;font-size:12px;font-weight:700}.setrow .tb{text-align:left;font-size:12px;font-weight:700}
+.setrow input{width:60px;text-align:center}
+.result{margin-top:7px;text-align:center;font-size:12px;color:var(--muted)}
+.winner{color:var(--green);font-weight:800}
+.champion{background:#fff8d9;border:1px solid #e2ca79;border-radius:12px;padding:14px;text-align:center;font-size:20px;font-weight:800;margin-top:10px}
+.grid2{display:grid;grid-template-columns:.9fr 1.6fr;gap:16px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:7px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th{background:#f7f9fc;position:sticky;top:0;z-index:1}
+td.team{text-align:left;font-weight:700}
+.top8{background:var(--top)}
+.cut{border-top:3px solid var(--gold)}
+.pos{color:#145cab;font-weight:700}.neg{color:var(--red);font-weight:700}
+.badge{display:inline-block;background:#e9f4ee;color:var(--green);border-radius:999px;padding:2px 7px;font-size:10px}
+.status{display:inline-block;padding:3px 7px;border-radius:999px;font-size:11px;background:#eef3fa}
+@media(max-width:1100px){.bracket,.grid2{grid-template-columns:1fr}.teams,.seedgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.teams,.seedgrid{grid-template-columns:1fr}.setrow{grid-template-columns:42px 1fr 48px 12px 48px 1fr}.setrow input{width:48px}}
+</style>
+</head>
+<body>
+<header>
+<h1>Knockout Circuit 1–9 — Score Entry Mockup</h1>
+<p>กรอกแต้มจริงรายเซต • คำนวณผลการแข่งขัน • คะแนน Circuit • สถิติสะสม SW/SL/SD/PF/PA/PD</p>
+</header>
+
+<main><div class="card"><a class="ghost" style="display:inline-block;text-decoration:none;padding:9px 13px;border-radius:9px;font-weight:700" href="index.html">← เลือกระบบการแข่งขัน</a></div>
+<div class="card">
+  <div class="toolbar">
+    <b>เลือก Circuit:</b>
+    <div id="tabs"></div>
+    <button class="ghost" onclick="randomCircuit()">🎲 จำลอง Circuit นี้</button>
+    <button class="danger" onclick="clearCircuit()">ล้าง Circuit นี้</button>
+    <button class="ghost" onclick="clearAll()">ล้างทั้งหมด</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>1) รายชื่อและ Seed 16 ทีม</h2>
+  <div class="small">แก้ชื่อทีมได้เอง รายชื่อชุดนี้ใช้ต่อเนื่องทุก Circuit</div>
+  <div id="teamInputs" class="teams" style="margin-top:10px"></div>
+</div>
+
+<div class="card">
+  <h2>2) การกระจาย Seed จาก Road To</h2>
+  <div class="seedgrid">
+    <div class="seedbox"><h3>สาย A</h3><div>อันดับ 1, 5, 9, 13</div></div>
+    <div class="seedbox"><h3>สาย B</h3><div>อันดับ 2, 6, 10, 14</div></div>
+    <div class="seedbox"><h3>สาย C</h3><div>อันดับ 3, 7, 11, 15</div></div>
+    <div class="seedbox"><h3>สาย D</h3><div>อันดับ 4, 8, 12, 16</div></div>
+  </div>
+  <div class="note" style="margin-top:10px">Mockup นี้ใช้ผังจับคู่ตัวอย่างแบบ Seed 1–16 เพื่อทดลองระบบกรอกคะแนนก่อน สามารถเปลี่ยนผังจับคู่จริงภายหลังได้โดยไม่กระทบระบบคะแนนสะสม</div>
+</div>
+
+<div class="card">
+  <h2>3) กรอกผล <span id="circuitTitle"></span></h2>
+  <div class="small">กรอกแต้มจริงแต่ละเซต ระบบจะถือว่าทีมที่ชนะ 2 เซตก่อนเป็นผู้ชนะของแมตช์ • หากเสมอ 14–14 ต้องเล่นต่อจนถึง 17 แต้ม</div>
+  <div class="bracket" style="margin-top:14px">
+    <section class="round"><h3>รอบ 16 ทีม</h3><div id="r16"></div></section>
+    <section class="round"><h3>รอบ 8 ทีม</h3><div id="qf"></div></section>
+    <section class="round"><h3>รอบรองชนะเลิศ</h3><div id="sf"></div></section>
+    <section class="round"><h3>รอบชิงชนะเลิศ</h3><div id="fin"></div><div id="champion" class="champion">ยังไม่มีแชมป์</div></section>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <h2>4) สรุปคะแนน Circuit นี้</h2>
+    <table>
+      <thead><tr><th>ทีม</th><th>ผลงาน</th><th>Pts</th></tr></thead>
+      <tbody id="circuitPoints"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>5) ตารางคะแนนสะสม Circuit 1–9</h2>
+    <div class="small">SW / SL / SD / PF / PA / PD เป็นยอดสะสมต่อเนื่องทั้ง 9 Circuit</div>
+    <div style="overflow:auto;max-height:600px;margin-top:8px">
+      <table>
+        <thead id="standHead"></thead>
+        <tbody id="standBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</main>
+
+<script>
+let teams=Array.from({length:16},(_,i)=>"Team "+String.fromCharCode(65+i));
+let current=0;
+
+function blankSets(){return [{a:"",b:""},{a:"",b:""},{a:"",b:""}]}
+function blankMatch(a="",b=""){return {a,b,sets:blankSets()}}
+function blankCircuit(){return{
+  r16:Array.from({length:8},()=>blankMatch()),
+  qf:Array.from({length:4},()=>blankMatch()),
+  sf:Array.from({length:2},()=>blankMatch()),
+  fin:blankMatch()
+}}
+let circuits=Array.from({length:9},()=>blankCircuit());
+
+const firstPairs=[[0,15],[7,8],[4,11],[3,12],[2,13],[5,10],[6,9],[1,14]];
+
+function seedFirst(c){
+  firstPairs.forEach((p,i)=>{c.r16[i].a=teams[p[0]];c.r16[i].b=teams[p[1]]});
+}
+function renderTeams(){
+  let x="";
+  teams.forEach((t,i)=>x+=`<label><span class="small">Seed ${i+1}</span><input class="teamname" value="${t}" onchange="renameTeam(${i},this.value)"></label>`);
+  document.getElementById("teamInputs").innerHTML=x;
+}
+function renameTeam(i,v){
+  teams[i]=v.trim()||("Team "+(i+1));
+  circuits.forEach(c=>{
+    [...c.r16,...c.qf,...c.sf,c.fin].forEach(m=>m.sets=blankSets());
+    seedFirst(c);
+  });
+  renderAll();
+}
+function renderTabs(){
+  let x="";
+  for(let i=0;i<9;i++)x+=`<button class="circuit-tab ${i===current?'active':''}" onclick="setCircuit(${i})">C${i+1}</button>`;
+  document.getElementById("tabs").innerHTML=x;
+}
+function setCircuit(i){current=i;renderTabs();renderAll()}
+
+function validSetScore(a,b){
+  a=Number(a); b=Number(b);
+  if(a===b) return false;
+  const hi=Math.max(a,b), lo=Math.min(a,b);
+
+  // Normal set: winner reaches 15 while loser has no more than 13.
+  if(hi===15 && lo<=13) return true;
+
+  // At 14-14, the set continues and ends only when one side reaches 17.
+  // Valid deuce-ending scores: 17-14, 17-15, 17-16.
+  if(hi===17 && lo>=14 && lo<=16) return true;
+
+  return false;
+}
+
+function matchSummary(m){
+  let swA=0,swB=0,pfA=0,pfB=0,played=0,invalid=false;
+  for(let i=0;i<3;i++){
+    const s=m.sets[i];
+    if(s.a===""||s.b==="") continue;
+
+    let a=Number(s.a),b=Number(s.b);
+
+    if(!validSetScore(a,b)){
+      invalid=true;
+      continue;
+    }
+
+    played++;pfA+=a;pfB+=b;
+    if(a>b)swA++;else swB++;
+
+    if(swA===2||swB===2) break;
+  }
+
+  if(invalid && swA<2 && swB<2){
+    return {complete:false,invalid:true,swA,swB,pfA,pfB};
+  }
+
+  if(swA<2&&swB<2){
+    return {complete:false,invalid:false,swA,swB,pfA,pfB};
+  }
+
+  return {
+    complete:true,
+    invalid:false,
+    swA,swB,pfA,pfB,
+    winner:swA>swB?m.a:m.b,
+    loser:swA>swB?m.b:m.a
+  };
+}
+function winner(m){let r=matchSummary(m);return r.complete?r.winner:null}
+function loser(m){let r=matchSummary(m);return r.complete?r.loser:null}
+
+function updateProgress(c){
+  seedFirst(c);
+  let w=c.r16.map(winner);
+  for(let i=0;i<4;i++){
+    c.qf[i].a=w[i*2]||`ผู้ชนะ R16-${i*2+1}`;
+    c.qf[i].b=w[i*2+1]||`ผู้ชนะ R16-${i*2+2}`;
+  }
+  w=c.qf.map(winner);
+  for(let i=0;i<2;i++){
+    c.sf[i].a=w[i*2]||`ผู้ชนะ QF-${i*2+1}`;
+    c.sf[i].b=w[i*2+1]||`ผู้ชนะ QF-${i*2+2}`;
+  }
+  w=c.sf.map(winner);
+  c.fin.a=w[0]||"ผู้ชนะ SF-1";
+  c.fin.b=w[1]||"ผู้ชนะ SF-2";
+}
+function matchHTML(m,round,i){
+  let rows="";
+  m.sets.forEach((s,si)=>{
+    rows+=`<div class="setrow">
+      <div><b>Set ${si+1}</b></div>
+      <div class="ta">${m.a}</div>
+      <input type="number" min="0" value="${s.a}" onchange="setScore('${round}',${i},${si},'a',this.value)">
+      <span>–</span>
+      <input type="number" min="0" value="${s.b}" onchange="setScore('${round}',${i},${si},'b',this.value)">
+      <div class="tb">${m.b}</div>
+    </div>`;
+  });
+  let sm=matchSummary(m);
+  let resultText;
+  if(sm.complete){
+    resultText=`<span class="winner">${sm.winner} ชนะ ${sm.swA}-${sm.swB} เซต</span>`;
+  }else if(sm.invalid){
+    resultText=`<span style="color:#b74040;font-weight:700">คะแนนเซตยังไม่ถูกต้อง — หากเสมอ 14–14 ต้องเล่นต่อจนถึง 17 แต้ม</span>`;
+  }else{
+    resultText=`ยังไม่จบการแข่งขัน`;
+  }
+  return `<div class="match"><div class="match-title">${m.a} vs ${m.b}</div>${rows}<div class="result">${resultText}</div></div>`;
+}
+function getMatch(round,i){
+  let c=circuits[current];
+  if(round==="r16")return c.r16[i];
+  if(round==="qf")return c.qf[i];
+  if(round==="sf")return c.sf[i];
+  return c.fin;
+}
+function clearDownstream(round){
+  let c=circuits[current];
+  if(round==="r16"){[...c.qf,...c.sf,c.fin].forEach(m=>m.sets=blankSets())}
+  else if(round==="qf"){[...c.sf,c.fin].forEach(m=>m.sets=blankSets())}
+  else if(round==="sf"){c.fin.sets=blankSets()}
+}
+function setScore(round,i,si,k,v){
+  getMatch(round,i).sets[si][k]=v===""?"":Number(v);
+  clearDownstream(round);
+  renderAll();
+}
+
+function circuitStatus(c){
+  let st={};teams.forEach(t=>st[t]={pts:1,label:"รอบ 16 ทีมสุดท้าย"});
+  c.r16.forEach(m=>{let w=winner(m),l=loser(m);if(w)st[w]={pts:2,label:"รอบ 8 ทีมสุดท้าย"};if(l)st[l]={pts:1,label:"รอบ 16 ทีมสุดท้าย"}});
+  c.qf.forEach(m=>{let w=winner(m),l=loser(m);if(w)st[w]={pts:3,label:"รอบรองชนะเลิศ"};if(l)st[l]={pts:2,label:"รอบ 8 ทีมสุดท้าย"}});
+  c.sf.forEach(m=>{let w=winner(m),l=loser(m);if(w)st[w]={pts:4,label:"เข้าชิงชนะเลิศ"};if(l)st[l]={pts:3,label:"รอบรองชนะเลิศ"}});
+  let w=winner(c.fin),l=loser(c.fin);if(w)st[w]={pts:5,label:"ชนะเลิศ"};if(l)st[l]={pts:4,label:"รองชนะเลิศ"};
+  return st;
+}
+function circuitComplete(c){return !!winner(c.fin)}
+
+function addMatchStats(acc,m){
+  let r=matchSummary(m); if(!r.complete)return;
+  let A=acc[m.a],B=acc[m.b];
+  if(!A||!B)return;
+  A.P++;B.P++;A.PF+=r.pfA;A.PA+=r.pfB;B.PF+=r.pfB;B.PA+=r.pfA;
+  A.SW+=r.swA;A.SL+=r.swB;B.SW+=r.swB;B.SL+=r.swA;
+  if(r.winner===m.a){A.W++;B.L++}else{B.W++;A.L++}
+}
+function cumulative(){
+  let acc={};teams.forEach(t=>acc[t]={team:t,C:Array(9).fill(0),Pts:0,P:0,W:0,L:0,SW:0,SL:0,SD:0,PF:0,PA:0,PD:0,champs:0,runner:0});
+  circuits.forEach((c,ci)=>{
+    // match stats are accumulated as soon as matches are complete
+    [...c.r16,...c.qf,...c.sf,c.fin].forEach(m=>addMatchStats(acc,m));
+    if(circuitComplete(c)){
+      let st=circuitStatus(c);
+      teams.forEach(t=>{
+        acc[t].C[ci]=st[t].pts;acc[t].Pts+=st[t].pts;
+        if(st[t].pts===5)acc[t].champs++;
+        if(st[t].pts===4)acc[t].runner++;
+      });
+    }
+  });
+  Object.values(acc).forEach(x=>{x.SD=x.SW-x.SL;x.PD=x.PF-x.PA});
+  return Object.values(acc).sort((a,b)=>b.Pts-a.Pts||b.champs-a.champs||b.runner-a.runner||b.SD-a.SD||b.SW-a.SW||b.PD-a.PD||b.PF-a.PF||a.team.localeCompare(b.team));
+}
+function fmt(n){return n>0?`+${n}`:`${n}`}
+function cls(n){return n>0?"pos":n<0?"neg":""}
+
+function renderAll(){
+  let c=circuits[current];updateProgress(c);
+  document.getElementById("circuitTitle").innerText=`Circuit ${current+1}`;
+  document.getElementById("r16").innerHTML=c.r16.map((m,i)=>matchHTML(m,"r16",i)).join("");
+  document.getElementById("qf").innerHTML=c.qf.map((m,i)=>matchHTML(m,"qf",i)).join("");
+  document.getElementById("sf").innerHTML=c.sf.map((m,i)=>matchHTML(m,"sf",i)).join("");
+  document.getElementById("fin").innerHTML=matchHTML(c.fin,"fin",0);
+  document.getElementById("champion").innerHTML=winner(c.fin)?`🏆 ${winner(c.fin)}`:"ยังไม่มีแชมป์";
+
+  let st=circuitStatus(c);
+  document.getElementById("circuitPoints").innerHTML=teams.map(t=>[t,st[t].label,st[t].pts]).sort((a,b)=>b[2]-a[2]||a[0].localeCompare(b[0]))
+    .map(r=>`<tr><td class="team">${r[0]}</td><td>${r[1]}</td><td><b>${r[2]}</b></td></tr>`).join("");
+
+  let head="<tr><th>อันดับ</th><th>ทีม</th>";
+  for(let i=0;i<9;i++)head+=`<th>C${i+1}</th>`;
+  head+="<th>Pts</th><th>P</th><th>W</th><th>L</th><th>SW</th><th>SL</th><th>SD</th><th>PF</th><th>PA</th><th>PD</th></tr>";
+  document.getElementById("standHead").innerHTML=head;
+
+  let rows=cumulative();
+  document.getElementById("standBody").innerHTML=rows.map((r,i)=>{
+    let rowClass=i<8?"top8":i===8?"cut":"";
+    return `<tr class="${rowClass}">
+      <td>${i+1}</td>
+      <td class="team">${r.team}${i<8?' <span class="badge">Top 8</span>':''}</td>
+      ${r.C.map(x=>`<td>${x||"-"}</td>`).join("")}
+      <td><b>${r.Pts}</b></td><td>${r.P}</td><td>${r.W}</td><td>${r.L}</td>
+      <td>${r.SW}</td><td>${r.SL}</td><td class="${cls(r.SD)}">${fmt(r.SD)}</td>
+      <td>${r.PF}</td><td>${r.PA}</td><td class="${cls(r.PD)}">${fmt(r.PD)}</td>
+    </tr>`;
+  }).join("");
+}
+
+function randomSet(winA){
+  // 25% chance of a 14-14 extended set.
+  const deuce=Math.random()<0.25;
+
+  if(deuce){
+    const loser=14+Math.floor(Math.random()*3); // 14, 15 or 16
+    return winA?{a:17,b:loser}:{a:loser,b:17};
+  }
+
+  // Normal set: winner 15, loser 5-13.
+  const loser=5+Math.floor(Math.random()*9);
+  return winA?{a:15,b:loser}:{a:loser,b:15};
+}
+function randomMatch(m){
+  let aWins=Math.random()<.5, three=Math.random()<.55;
+  m.sets=blankSets();
+  if(aWins){
+    if(three){m.sets[0]=randomSet(true);m.sets[1]=randomSet(false);m.sets[2]=randomSet(true)}
+    else{m.sets[0]=randomSet(true);m.sets[1]=randomSet(true)}
+  }else{
+    if(three){m.sets[0]=randomSet(false);m.sets[1]=randomSet(true);m.sets[2]=randomSet(false)}
+    else{m.sets[0]=randomSet(false);m.sets[1]=randomSet(false)}
+  }
+}
+function randomCircuit(){
+  let c=circuits[current];
+  c.r16.forEach(randomMatch);updateProgress(c);
+  c.qf.forEach(randomMatch);updateProgress(c);
+  c.sf.forEach(randomMatch);updateProgress(c);
+  randomMatch(c.fin);renderAll();
+}
+function clearCircuit(){
+  let c=circuits[current];[...c.r16,...c.qf,...c.sf,c.fin].forEach(m=>m.sets=blankSets());renderAll()
+}
+function clearAll(){
+  circuits=Array.from({length:9},()=>blankCircuit());circuits.forEach(seedFirst);renderAll()
+}
+
+circuits.forEach(seedFirst);
+renderTeams();renderTabs();renderAll();
+</script>
+</body>
+</html>
